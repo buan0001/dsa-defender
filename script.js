@@ -1,4 +1,4 @@
-import StaticArray from "./StaticArray.js";
+import SinglyLinkedList from "./singlyLinkedList.js";
 
 window.addEventListener("load", start);
 
@@ -21,6 +21,7 @@ function start() {
   resetGame();
   // begin the loop
   requestAnimationFrame(loop);
+  window.enemies = enemies;
 }
 
 function resetGame() {
@@ -47,74 +48,23 @@ function createInitialEnemies() {
   console.log(enemies);
 }
 
-let firstEnemy = null;
+let enemies = new SinglyLinkedList();
 
 // creates a new enemy object, and adds it to the list of enemies
 function spawnNewEnemy() {
   const enemy = createEnemy();
-
-  if (firstEnemy == null) {
-    firstEnemy = enemy;
-  } else {
-    enemy.next = firstEnemy;
-    firstEnemy = enemy;
-  }
-
-  console.log("first enemey", firstEnemy);
+  enemies.add(enemy);
 
   return enemy;
 }
 
-// function growArray() {
-//   const tempArray = new StaticArray(enemies.length + 1);
-//   for (let index = 0; index < enemies.length; index++) {
-//     tempArray[index] = enemies[index];
-//   }
-//   console.log("Temp array", tempArray);
-//   enemies = tempArray;
-
-//   return enemies;
-// }
-
-// function shrinkArray() {
-//   const tempArray = new StaticArray(enemies.length - 1);
-//   for (let index = 0; index < enemies.length - 1; index++) {
-//     tempArray[index] = enemies[index];
-//   }
-//   console.log("Temp array", tempArray);
-//   enemies = tempArray;
-
-//   return enemies;
-// }
-
-// removes an enemy object from the list of enemies
-
 function removeEnemy(enemy) {
-  // TODO: need to find enemy object in list of enemies, and remove it
-  console.log("ENEMY to delete", enemy);
-  let anEnemy = firstEnemy;
-  let iterations = 0;
-  if (enemy == anEnemy) {
-    firstEnemy = enemy.next;
-  } else {
-    while (anEnemy.next != enemy) {
-      console.log("An enemy:", anEnemy);
-      iterations++;
-      anEnemy = anEnemy.next;
-      if (iterations > 30) {
-        console.log("Too many iterations");
-        break;
-      }
-    }
-    console.log("Found!", anEnemy, anEnemy.next);
-
-    anEnemy.next == enemy.next;
-  }
+  enemies.remove( enemy );
 }
 
-// returns the number of enemy objects in the list of enemies
+
 function numberOfEnemies() {
-  return enemiesAlive;
+  return enemies.size()
 }
 
 // ************************************************
@@ -219,11 +169,10 @@ function loop() {
   // ****
   // Loop through all enemies - and move them until the reach the bottom
   // ****
-  let currentEnemy = firstEnemy;
+  let node = enemies.getFirstNode();
   let iterations = 0;
-  while (currentEnemy) {
-    // for (const enemy of enemies) {
-    // TODO: Only look at actual enemy objects from the list ...
+  while (node) {
+    const currentEnemy = node.data;
 
     // ignore enemies who are dying or crashing - so they don't move any further
     if (!currentEnemy.isFrozen) {
@@ -234,11 +183,9 @@ function loop() {
       }
       displayEnemy(currentEnemy);
     }
-    
 
-    
+    node = enemies.getNextNode(node);
 
-    currentEnemy = currentEnemy.next;
     iterations++;
     if (iterations > 30) {
       break;
@@ -252,29 +199,10 @@ function loop() {
   }
 
   // Check for level complete
-  // if (numberOfEnemies() <= 0) {
-  //   console.log("LEVEL COMPLETE");
-  //   gameRunning = false;
-  // }
-
-  // ****
-  // Loop through all enemies - and update their visuals
-  // ****
-  // for (const enemy of enemies) {
-  // currentEnemy = firstEnemy;
-  // iterations = 0;
-  // while (currentEnemy) {
-  //   displayEnemy(currentEnemy);
-  //   currentEnemy = currentEnemy.next;
-  //   iterations++;
-  //   if (iterations > 30) {
-  //     break;
-  //   }
-  // }
-  // TODO: Only do this for actual enemy objects from the list ...
-
-  // }
-
+  if (numberOfEnemies() <= 0) {
+    console.log("LEVEL COMPLETE");
+    gameRunning = false;
+  }
   // update health display
   displayHealth();
 
